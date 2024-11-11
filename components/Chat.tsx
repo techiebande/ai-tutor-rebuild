@@ -4,7 +4,6 @@ import React, { createContext, useState, useEffect } from "react";
 import PageContainer from "./PageContainer";
 import ChatSidebar from "./ChatSidebar";
 import ChatInterface from "./ChatInterface";
-import { toast } from "sonner";
 
 export interface AIAgentProps {
   id: string;
@@ -64,7 +63,7 @@ const Chat = () => {
         toggleSidebar,
       }}
     >
-      <PageContainer className="grid grid-cols-12 gap-[1px] rounded-xl pt-5">
+      <PageContainer className="grid grid-cols-12 gap-[1px] rounded-xl pt-5 text-xs">
         <ChatSidebar />
         <ChatInterface />
       </PageContainer>
