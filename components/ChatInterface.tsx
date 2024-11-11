@@ -41,7 +41,7 @@ const ChatInterface = () => {
     throw new Error("useAgentContext must be used within an AgentProvider");
   }
 
-  const { agent, agentLoading, agentError } = agentContext;
+  const { agent, agentError, agentLoading } = agentContext;
 
   const [messages, setMessages] = useState<Message[]>([]);
 

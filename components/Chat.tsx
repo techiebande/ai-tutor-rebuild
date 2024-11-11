@@ -16,15 +16,6 @@ export interface AIAgentProps {
   specialties: string[];
 }
 
-interface Conversation {
-  completed_response: boolean;
-  content: string;
-  conversation_id: string;
-  date: string;
-  id: string;
-  sender: string;
-}
-
 interface ChatContextProps {
   isSidebarOpen: boolean;
   toggleSidebar: () => void;

@@ -36,7 +36,7 @@ const Tutor = ({
         </h1>
         <p className="mt-4 text-center">{expert}</p>
         <div className="flex justify-center">
-          <Link href={`chat/[...slug]`} as={`chat/${slug}`}>
+          <Link href={`/chat/[...slug]`} as={`/chat/${slug}`}>
             <Button className="bg-[#0282E3] flex items-center my-4 font-bold rounded-md px-4 py-2.5 text-white">
               <MessageCircle className="me-2" />
               Learn Now

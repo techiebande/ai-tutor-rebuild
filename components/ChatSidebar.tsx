@@ -13,14 +13,7 @@ const ChatSidebar = () => {
     throw new Error("useAgentContext must be used within an AgentProvider");
   }
 
-  const {
-    agent,
-    agentLoading,
-    agentError,
-    agents,
-    agentsLoading,
-    agentsError,
-  } = agentContext;
+  const { agents, agentsLoading, agentsError } = agentContext;
 
   const sideBarContext = useContext(ChatContext);
 

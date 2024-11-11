@@ -4,8 +4,8 @@ import { AIAgentProp } from "./ai-agent";
 export interface AgentContextProps {
   agent: AIAgentProp | null;
   agentLoading: boolean;
-  agentError: string | null;
+  agentError: boolean | null;
   agents: AIAgentProps[] | [];
   agentsLoading: boolean;
-  agentsError: string | null;
+  agentsError: boolean | null;
 }
