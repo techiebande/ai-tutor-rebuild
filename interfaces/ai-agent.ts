@@ -1,0 +1,36 @@
+export interface AIAgentProp {
+  specialties: any;
+  id: string;
+  name: string;
+  slug: string;
+  image: string;
+  display_description: string;
+  description: string;
+  welcome_message: string;
+  expert: string;
+  display_welcome_message: boolean;
+  temperature: number;
+  frequency_penalty: number;
+  chat_minlength: number;
+  chat_maxlength: number;
+  api_model: string;
+  display_api_model: boolean;
+  use_google_voice: boolean;
+  use_cloud_google_voice: boolean;
+  google_voice: string;
+  google_voice_lang_code: string;
+  cloud_google_voice_gender: null;
+  mic_speak_lang: string;
+  display_mic: boolean;
+  display_copy_btn: boolean;
+  display_avatar: boolean;
+  display_suggestions: boolean;
+  use_dalle: boolean;
+  use_mic_whisper: boolean;
+  use_vision: boolean;
+  created_at: string;
+  suggestions: string[] | null;
+  cloud_voice?: string;
+  cloud_voice_provider?: string;
+  use_cloud_voice?: string;
+}

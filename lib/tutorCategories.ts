@@ -1,0 +1,18 @@
+export const tutorCategories = [
+  "mathematics",
+  "physics",
+  "english",
+  "geography",
+  "animation",
+  "principles-of-accounts",
+  "renewable-energy-and-environmental-friendly",
+  "sustainability-and-green-engineering",
+  "psychologist",
+  "principles-of-business-and-management-of-business",
+  "reading-and-writing",
+  "science-and-conservation",
+  "sports",
+  "health-wellness-and-go-green",
+  "enterpreneurship",
+  "travel-and-tourism",
+];
