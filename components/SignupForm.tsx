@@ -88,7 +88,7 @@ const SignupForm: React.FC = () => {
       toast("Registered successfully", {
         className: "text-green-500",
       });
-      router.push("/dashboard");
+      router.push("/");
     }
   };
 

@@ -53,7 +53,7 @@ const SignInForm: React.FC = () => {
       toast("Sign in successful", {
         className: "text-green-500",
       });
-      router.push("/dashboard");
+      router.push("/");
     }
   };
 
