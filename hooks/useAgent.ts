@@ -13,7 +13,7 @@ const fetchAgent = async (slug: string) => {
 
 export const useAgent = (slug: string) => {
   return useQuery({
-    queryKey: ["agent"],
+    queryKey: ["agent", slug],
     queryFn: () => fetchAgent(slug),
     staleTime: 0,
     retry: 1,

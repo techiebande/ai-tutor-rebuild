@@ -12,30 +12,9 @@ export const sendStartMessageToAI = async (
   setChatImage: any,
   conversation: any,
   isTyping: any,
-  setIsTyping: any
+  setIsTyping: any,
+  messages: any
 ) => {
-  setIsWaiting(true);
-
-  const newUserMessage = {
-    content: input,
-    date: format(new Date(), "Pp").replaceAll("/", "-").replaceAll(",", ""),
-    sender: "User",
-    id: generateLongId(),
-    images: chatImage ? [chatImage] : [],
-  };
-
-  setMessages((prevMessages: any) => [...prevMessages, newUserMessage]);
-
-  setInput("");
-
-  const systemMessage = {
-    content: "",
-    date: format(new Date(), "Pp").replaceAll("/", "-").replaceAll(",", ""),
-    sender: "system",
-    images: [],
-  };
-  setMessages((prevMessages: any) => [...prevMessages, systemMessage]);
-
   try {
     if (agent) {
       const responseText = conversation.data.content;
@@ -44,36 +23,47 @@ export const sendStartMessageToAI = async (
 
       const batchSize = 7;
 
+      const storeMessagesInLocalStorage = () => {
+        setMessages((finalMessages: any) => {
+          localStorage.setItem(
+            "ait_msg",
+            JSON.stringify({
+              agent,
+              messages: finalMessages,
+            })
+          );
+          return finalMessages;
+        });
+      };
+
       for (let i = 0; i < responseText.length; i += batchSize) {
         setIsWaiting(false);
         setIsTyping(true);
         streamedContent += responseText.slice(i, i + batchSize);
 
+        // Update the messages state only once per iteration
         setMessages((prevMessages: any) => {
           const updatedMessages = [...prevMessages];
-          updatedMessages[updatedMessages.length - 1].content = streamedContent;
-          updatedMessages[updatedMessages.length - 1].id = conversation.data.id;
-          updatedMessages[updatedMessages.length - 1].date =
-            conversation.data.date;
+          const lastMessage = updatedMessages[updatedMessages.length - 1];
 
-          return updatedMessages;
-        });
-
-        setMessages((prevMessages: any) => {
-          const updatedMessages = [...prevMessages];
-          updatedMessages[updatedMessages.length - 1].content = streamedContent;
+          // Update content, id, and date of the last message
+          lastMessage.content = streamedContent;
+          lastMessage.id = conversation.data.id;
+          lastMessage.date = conversation.data.date;
 
           return updatedMessages;
         });
 
         await new Promise((resolve) => setTimeout(resolve, 5));
       }
+
       setIsTyping(false);
+      storeMessagesInLocalStorage();
     }
   } catch (error) {
     console.error("Error sending message:", error);
   } finally {
-    setIsWaiting(false);
+    // setIsWaiting(false);
     setChatImage(null);
   }
 };

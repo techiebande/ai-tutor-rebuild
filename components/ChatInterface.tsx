@@ -43,7 +43,26 @@ const ChatInterface = () => {
 
   const { agent, agentError, agentLoading } = agentContext;
 
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<any>(() => {
+    //@ts-expect-error
+    const messageData = JSON.parse(localStorage.getItem("ait_msg"));
+
+    if (messageData && messageData.agent.slug === agent?.slug) {
+      return messageData.messages;
+    } else {
+      return [];
+    }
+  });
+
+  // if (messages.length > 0) {
+  //   localStorage.setItem(
+  //     "ait_msg",
+  //     JSON.stringify({
+  //       agent,
+  //       messages,
+  //     })
+  //   );
+  // }
 
   const [playingMessage, setPlayingMessage] = useState<Message | undefined>(
     undefined
@@ -55,7 +74,7 @@ const ChatInterface = () => {
 
   useEffect(() => {
     const initializeMessages = async () => {
-      if (agent && slug?.length === 1) {
+      if (agent && messages.length === 0 && slug?.length === 1) {
         setMessages([
           {
             content: agent.welcome_message,
@@ -68,15 +87,21 @@ const ChatInterface = () => {
           },
         ]);
       } else if (agent && slug?.length === 3) {
-        const conversation = await getConversation(slug[2]);
-        if (conversation) {
-          setMessages(conversation.data.messages);
+        const currentConversationId = localStorage.getItem("current_conv_id");
+        const urlSegments = window.location.href.split("/");
+        const id = urlSegments[urlSegments.length - 1];
+
+        if (id !== currentConversationId) {
+          const conversation = await getConversation(id);
+          if (conversation) {
+            setMessages(conversation.data.messages);
+          }
         }
       }
     };
 
     initializeMessages();
-  }, [agent, slug]);
+  }, [agent]);
 
   return (
     <div
@@ -93,7 +118,7 @@ const ChatInterface = () => {
             "flex row-span-7 overflow-y-auto py-4 px-1 space-y-4 overflow-scroll w-[100%] bg-[url('/background-new.png')]"
           )}
         >
-          {messages?.map((msg, index) => {
+          {messages?.map((msg: Message, index: number) => {
             return msg.sender === "system" ? (
               <div key={index} className="mb-2">
                 <BotMessage

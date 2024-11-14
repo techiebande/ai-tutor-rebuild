@@ -115,96 +115,284 @@ const ChatFooter = ({
   useEffect(() => {
     const startMessaging = async () => {
       if (input.trim() && agent && messages.length == 1 && sendInputMessage) {
+        setInput("");
+
+        const newUserMessage = {
+          content: input,
+          date: format(new Date(), "Pp")
+            .replaceAll("/", "-")
+            .replaceAll(",", ""),
+          sender: "User",
+          id: generateLongId(),
+          images: chatImage ? [chatImage] : [],
+        };
+
+        setMessages((prevMessages: any) => [...prevMessages, newUserMessage]);
+
+        const systemMessage = {
+          content: "",
+          date: format(new Date(), "Pp")
+            .replaceAll("/", "-")
+            .replaceAll(",", ""),
+          sender: "system",
+          images: [],
+        };
+        setMessages((prevMessages: any) => [...prevMessages, systemMessage]);
+
+        setIsWaiting(true);
+
         const conversation = await startConversation(
           agent.id,
           input,
           language,
           tone
         );
-        if (conversation) {
-          setConversationId(conversation.data.conversation_id);
+
+        if (!conversation?.data?.id) {
+          toast("Failed to send message please try again", {
+            style: { color: "red" },
+            dismissible: true,
+          });
+
+          setMessages((prevMessages: any) => prevMessages.slice(0, -2));
+          setIsWaiting(false);
+          setSendInputMessage(false);
+
+          return;
         }
 
-        if (conversation && conversation?.data?.id) {
-          sendStartMessageToAI(
-            setIsWaiting,
-            input,
-            format,
-            generateLongId,
-            chatImage,
-            setMessages,
-            setInput,
-            agent,
-            sendMessage,
-            conversationId,
-            setChatImage,
-            conversation,
-            isTyping,
-            setIsTyping
-          );
+        if (conversation && conversation?.data?.conversation_id) {
+          setConversationId(conversation?.data?.conversation_id);
+          try {
+            if (agent.slug) {
+              const responseText = conversation.data.content;
+
+              let streamedContent = "";
+
+              const batchSize = 7;
+
+              const storeMessagesInLocalStorage = () => {
+                setMessages((finalMessages: any) => {
+                  localStorage.setItem(
+                    "ait_msg",
+                    JSON.stringify({
+                      agent,
+                      messages: finalMessages,
+                    })
+                  );
+                  return finalMessages;
+                });
+              };
+
+              for (let i = 0; i < responseText.length; i += batchSize) {
+                setIsWaiting(false);
+                setIsTyping(true);
+                streamedContent += responseText.slice(i, i + batchSize);
+
+                // Update the messages state only once per iteration
+                setMessages((prevMessages: any) => {
+                  const updatedMessages = [...prevMessages];
+                  const lastMessage =
+                    updatedMessages[updatedMessages.length - 1];
+
+                  // Update content, id, and date of the last message
+                  lastMessage.content = streamedContent;
+                  lastMessage.id = conversation.data.id;
+                  lastMessage.date = conversation.data.date;
+
+                  return updatedMessages;
+                });
+
+                await new Promise((resolve) => setTimeout(resolve, 5));
+              }
+
+              setIsTyping(false);
+              storeMessagesInLocalStorage();
+            }
+          } catch (error) {
+            console.error("Error sending message:", error);
+          } finally {
+            setIsWaiting(false);
+            setChatImage(null);
+          }
           setSendInputMessage(false);
 
           const newUrl = `/chat/${agent.slug}/c/${conversation.data.conversation_id}`;
 
           window.history.pushState(null, "", newUrl);
+
+          localStorage.setItem(
+            "current_conv_id",
+            conversation.data.conversation_id
+          );
         }
       }
     };
 
     startMessaging();
   }, [
-    agent,
+    // agent,
     sendInputMessage,
-    chatImage,
-    conversationId,
-    input,
-    messages.length,
-    setInput,
-    setIsWaiting,
-    setMessages,
-    language,
-    tone,
-    isTyping,
-    setIsTyping,
-    router,
+    // chatImage,
+    // conversationId,
+    // input,
+    // messages.length,
+    // setInput,
+    // setIsWaiting,
+    // setMessages,
+    // language,
+    // tone,
+    // isTyping,
+    // setIsTyping,
+    // router,
   ]);
 
   useEffect(() => {
-    if (sendInputMessage && messages.length > 1) {
-      sendMessageToAI(
-        setIsWaiting,
-        input,
-        format,
-        generateLongId,
-        chatImage,
-        setMessages,
-        setInput,
-        agent,
-        sendMessage,
-        conversationId,
-        setChatImage,
-        language,
-        tone,
-        isTyping,
-        setIsTyping,
-        toast
-      );
+    if (sendInputMessage && messages.length > 1 && conversationId) {
+      const sendRegularMessage = async () => {
+        setIsWaiting(true);
+
+        const newUserMessage = {
+          content: input,
+          date: format(new Date(), "Pp")
+            .replaceAll("/", "-")
+            .replaceAll(",", ""),
+          sender: "User",
+          id: generateLongId(),
+          images: chatImage ? [chatImage] : [],
+        };
+
+        setMessages((prevMessages: any) => [...prevMessages, newUserMessage]);
+
+        setInput("");
+
+        const systemMessage = {
+          content: "",
+          date: format(new Date(), "Pp")
+            .replaceAll("/", "-")
+            .replaceAll(",", ""),
+          sender: "system",
+          images: [],
+        };
+
+        setMessages((prevMessages: any) => [...prevMessages, systemMessage]);
+
+        try {
+          if (agent?.slug) {
+            console.log(
+              "DATA TO SEND",
+              conversationId,
+              input,
+              chatImage,
+              language,
+              tone
+            );
+            const data = await sendMessage(
+              conversationId,
+              input,
+              chatImage ? [chatImage] : null,
+              //@ts-expect-error
+              language,
+              tone
+            );
+
+            if (!data) {
+              toast("Failed to send message please try again", {
+                style: { color: "red" },
+                dismissible: true,
+              });
+
+              setMessages((prevMessages: any) => prevMessages.slice(0, -2));
+              setIsWaiting(false);
+              setSendInputMessage(false);
+
+              return;
+            }
+
+            const responseText = data.data.content;
+
+            let streamedContent = "";
+
+            const batchSize = 7;
+
+            const storeMessagesInLocalStorage = () => {
+              setMessages((finalMessages: any) => {
+                localStorage.setItem(
+                  "ait_msg",
+                  JSON.stringify({
+                    agent,
+                    messages: finalMessages,
+                  })
+                );
+                return finalMessages; // Ensure we return the messages to avoid any state issues
+              });
+            };
+
+            for (let i = 0; i < responseText.length; i += batchSize) {
+              setIsWaiting(false);
+              setIsTyping(true);
+              streamedContent += responseText.slice(i, i + batchSize);
+
+              setMessages((prevMessages: any) => {
+                const updatedMessages = [...prevMessages];
+                updatedMessages[updatedMessages.length - 1].content =
+                  streamedContent;
+                updatedMessages[updatedMessages.length - 1].id = data.data.id;
+                updatedMessages[updatedMessages.length - 1].date =
+                  data.data.date;
+
+                return updatedMessages;
+              });
+
+              await new Promise((resolve) => setTimeout(resolve, 5));
+            }
+
+            setIsTyping(false);
+            storeMessagesInLocalStorage();
+          }
+        } catch (error) {
+          console.error("Error sending message:", error);
+        } finally {
+          // setIsWaiting(false);
+          setChatImage(null);
+        }
+      };
+      // sendMessageToAI(
+      //   setIsWaiting,
+      //   input,
+      //   format,
+      //   generateLongId,
+      //   chatImage,
+      //   setMessages,
+      //   setInput,
+      //   agent,
+      //   sendMessage,
+      //   conversationId,
+      //   setChatImage,
+      //   language,
+      //   tone,
+      //   isTyping,
+      //   setIsTyping,
+      //   toast,
+      //   messages
+      // );
+      sendRegularMessage();
       setSendInputMessage(false);
     }
   }, [
     sendInputMessage,
-    conversationId,
-    input,
-    chatImage,
-    setMessages,
-    setIsWaiting,
-    setInput,
-    agent,
-    messages.length,
-    language,
-    tone,
-    isTyping,
-    setIsTyping,
+    // conversationId,
+    // input,
+    // chatImage,
+    // setMessages,
+    // setIsWaiting,
+    // setInput,
+    // agent,
+    // messages.length,
+    // language,
+    // tone,
+    // isTyping,
+    // setIsTyping,
   ]);
 
   const handleSendMessage = useCallback(() => {

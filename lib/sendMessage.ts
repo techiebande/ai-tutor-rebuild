@@ -14,7 +14,8 @@ export const sendMessageToAI = async (
   tone: any,
   isTyping: any,
   setIsTyping: any,
-  toast: any
+  toast: any,
+  messages: any
 ) => {
   setIsWaiting(true);
 
@@ -40,7 +41,15 @@ export const sendMessageToAI = async (
   setMessages((prevMessages: any) => [...prevMessages, systemMessage]);
 
   try {
-    if (agent) {
+    if (agent.slug) {
+      console.log(
+        "DATA TO SEND",
+        conversationId,
+        input,
+        chatImage,
+        language,
+        tone
+      );
       const data = await sendMessage(
         conversationId,
         input,
@@ -55,7 +64,8 @@ export const sendMessageToAI = async (
           dismissible: true,
         });
 
-        setMessages((prevMessages: any) => prevMessages.slice(0, -1));
+        setMessages((prevMessages: any) => prevMessages.slice(0, -2));
+        setIsWaiting(false);
 
         return;
       }
@@ -65,6 +75,19 @@ export const sendMessageToAI = async (
       let streamedContent = "";
 
       const batchSize = 7;
+
+      const storeMessagesInLocalStorage = () => {
+        setMessages((finalMessages: any) => {
+          localStorage.setItem(
+            "ait_msg",
+            JSON.stringify({
+              agent,
+              messages: finalMessages,
+            })
+          );
+          return finalMessages; // Ensure we return the messages to avoid any state issues
+        });
+      };
 
       for (let i = 0; i < responseText.length; i += batchSize) {
         setIsWaiting(false);
@@ -80,21 +103,16 @@ export const sendMessageToAI = async (
           return updatedMessages;
         });
 
-        setMessages((prevMessages: any) => {
-          const updatedMessages = [...prevMessages];
-          updatedMessages[updatedMessages.length - 1].content = streamedContent;
-
-          return updatedMessages;
-        });
-
         await new Promise((resolve) => setTimeout(resolve, 5));
       }
+
       setIsTyping(false);
+      storeMessagesInLocalStorage();
     }
   } catch (error) {
     console.error("Error sending message:", error);
   } finally {
-    setIsWaiting(false);
+    // setIsWaiting(false);
     setChatImage(null);
   }
 };

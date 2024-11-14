@@ -1,4 +1,5 @@
 "use server";
+import axios from "axios";
 
 export const sendMessage = async (
   conversationId: string,
@@ -7,36 +8,34 @@ export const sendMessage = async (
   language: string,
   tone: string
 ) => {
-  let data;
-
   try {
-    const response = await fetch("https://api.7x95.com/api/v1/message/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // Authorization: "Bearer your-token-here",
-      },
-      body: images
-        ? JSON.stringify({
+    const response = await axios.post(
+      "https://api.7x95.com/api/v1/message/send",
+      images
+        ? {
             conversation_id: conversationId,
             text: text,
             images: images,
             language,
             tone,
-          })
-        : JSON.stringify({
+          }
+        : {
             conversation_id: conversationId,
             text: text,
             images: [],
             language,
             tone,
-          }),
-    });
+          },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          // Authorization: "Bearer your-token-here",
+        },
+      }
+    );
 
-    data = await response.json();
-
-    return data;
+    return response.data;
   } catch (e: any) {
-    return null;
+    console.error("Error sending message:", e.message);
   }
 };

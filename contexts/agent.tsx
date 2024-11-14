@@ -21,8 +21,6 @@ const AgentProvider = ({ children }: { children: React.ReactNode }) => {
     //@ts-expect-error
   } = useAgent(slug[0]);
 
-  console.log("agent data", agentData);
-
   if (isError || isLoading) {
     return null;
   }

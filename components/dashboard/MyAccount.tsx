@@ -29,7 +29,6 @@ const MyAccount = () => {
 
   useEffect(() => {
     if (user) {
-      console.log("Userrrr", user);
       setValue("name", user.name);
     }
   }, [user, setValue]);
