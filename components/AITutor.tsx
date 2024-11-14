@@ -2,12 +2,23 @@ import Image, { StaticImageData } from "next/image";
 import React from "react";
 import { AIAgentProps } from "./Chat";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const AITutor = ({ tutor }: { tutor: AIAgentProps }) => {
+  const router = useRouter();
   return (
-    <Link
-      href={`/chat/${tutor.slug}`}
-      className="flex flex-col justify-start gap-5 p-1 bg-white rounded-3xl"
+    <div
+      onClick={() => {
+        localStorage.setItem(
+          "ait_msg",
+          JSON.stringify({
+            agent: {},
+            messages: [],
+          })
+        );
+        router.push(`/chat/${tutor.slug}`);
+      }}
+      className="cursor-pointer flex flex-col justify-start gap-5 p-1 bg-white rounded-3xl"
     >
       <div className="flex items-center gap-3">
         <Image
@@ -22,7 +33,7 @@ const AITutor = ({ tutor }: { tutor: AIAgentProps }) => {
           <p>{tutor.expert}</p>
         </div>
       </div>
-    </Link>
+    </div>
   );
 };
 
