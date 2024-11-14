@@ -8,6 +8,7 @@ export const startConversation = async (
   language: any,
   tone: any
 ) => {
+  console.log("START CONV DATA", agentId, message);
   if (agentId && message) {
     try {
       const response = await fetch(`${BASE_URL}/conversations/start`, {

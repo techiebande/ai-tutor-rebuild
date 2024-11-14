@@ -1,31 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
-export function useUser() {
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const fetchUser = async () => {
+  const response = await fetch(`/api/user`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch user");
+  }
+  return response.json();
+};
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch("/api/user");
-        if (!response.ok) {
-          setError("Failed to fetch user data.");
-          return;
-        }
-        const data = await response.json();
-        setUser(data);
-      } catch (err) {
-        setError("An error occurred while fetching user data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, []);
-
-  return { user, loading, error };
-}
+export const useUser = () => {
+  return useQuery({
+    queryKey: ["user"],
+    queryFn: () => fetchUser(),
+    staleTime: 1000 * 60 * 10,
+    retry: 1,
+  });
+};

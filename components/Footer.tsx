@@ -15,7 +15,9 @@ function Footer() {
     });
   };
 
-  const { user, loading } = useUser();
+  const { data } = useUser();
+
+  const user = data?.data;
 
   const router = useRouter();
 

@@ -16,7 +16,9 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 const MyAccount = () => {
-  const { user } = useUser();
+  const { data, isLoading, isError } = useUser();
+
+  const user = data?.data;
 
   const {
     register,

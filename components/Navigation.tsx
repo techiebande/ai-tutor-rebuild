@@ -6,7 +6,9 @@ import { useUser } from "@/hooks/useUser";
 import { useRouter } from "next/navigation";
 
 const Navigation = () => {
-  const { user, loading } = useUser();
+  const { data, isLoading, isError } = useUser();
+
+  const user = data?.data;
 
   const router = useRouter();
 
@@ -22,7 +24,7 @@ const Navigation = () => {
       </NavLink>
 
       <>
-        {loading ? (
+        {isLoading ? (
           <Loader className="animate-spin" />
         ) : user ? (
           <>
