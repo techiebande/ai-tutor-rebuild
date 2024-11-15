@@ -47,22 +47,14 @@ const ChatInterface = () => {
     //@ts-expect-error
     const messageData = JSON.parse(localStorage.getItem("ait_msg"));
 
+    console.log("MESSAGE DATA", messageData, agent);
+
     if (messageData && messageData.agent.slug === agent?.slug) {
       return messageData.messages;
     } else {
       return [];
     }
   });
-
-  // if (messages.length > 0) {
-  //   localStorage.setItem(
-  //     "ait_msg",
-  //     JSON.stringify({
-  //       agent,
-  //       messages,
-  //     })
-  //   );
-  // }
 
   const [playingMessage, setPlayingMessage] = useState<Message | undefined>(
     undefined
@@ -101,7 +93,7 @@ const ChatInterface = () => {
     };
 
     initializeMessages();
-  }, [agent]);
+  }, [agent, messages]);
 
   return (
     <div

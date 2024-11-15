@@ -15,6 +15,6 @@ export const useUser = () => {
     queryKey: ["user"],
     queryFn: () => fetchUser(),
     staleTime: 1000 * 60 * 10,
-    retry: 1,
+    retry: 0,
   });
 };
