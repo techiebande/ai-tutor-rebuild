@@ -27,6 +27,7 @@ import { useRouter } from "next/navigation";
 import { setToken } from "@/lib/auth";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
 
 const schema = z
   .object({
@@ -69,6 +70,8 @@ const SignupForm: React.FC = () => {
     },
   });
 
+  const queryClient = useQueryClient();
+
   const router = useRouter();
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
@@ -88,6 +91,7 @@ const SignupForm: React.FC = () => {
       toast("Registered successfully", {
         className: "text-green-500",
       });
+      await queryClient.invalidateQueries({ queryKey: ["user"] });
       router.push("/");
     }
   };

@@ -6,7 +6,7 @@ export function setToken(token: string) {
   } else {
     const res = NextResponse.next();
     res.cookies.set("token", token, {
-      httpOnly: true,
+      // httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",

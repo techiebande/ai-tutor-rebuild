@@ -4,10 +4,7 @@ export async function GET(req: NextRequest) {
   const token = req.cookies.get("token");
 
   if (!token) {
-    return NextResponse.json(
-      { error: "Authentication required" },
-      { status: 401 }
-    );
+    return NextResponse.json(null, { status: 401 });
   }
 
   try {
@@ -22,16 +19,12 @@ export async function GET(req: NextRequest) {
     );
 
     if (!response.ok) {
-      return NextResponse.json(
-        { error: "Failed to fetch user data" },
-        { status: response.status }
-      );
+      return NextResponse.json(null, { status: response.status });
     }
 
     const userData = await response.json();
-
     return NextResponse.json(userData);
   } catch (error) {
-    return NextResponse.json({ error: "An error occurred" }, { status: 500 });
+    return NextResponse.json(null, { status: 500 });
   }
 }

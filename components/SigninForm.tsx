@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 const schema = z.object({
   email: z.string().email("Invalid email address"),
@@ -34,6 +35,8 @@ const SignInForm: React.FC = () => {
     },
   });
 
+  const queryClient = useQueryClient();
+
   const router = useRouter();
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
@@ -53,6 +56,7 @@ const SignInForm: React.FC = () => {
       toast("Sign in successful", {
         className: "text-green-500",
       });
+      await queryClient.invalidateQueries({ queryKey: ["user"] });
       router.push("/");
     }
   };
